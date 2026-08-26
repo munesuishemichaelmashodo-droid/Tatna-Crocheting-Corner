@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { CrochetProduct, BusinessInfo } from '../types';
 import { CurrencyCode, formatPrice } from '../utils/currency';
 import { BRAND_LOGO } from '../data/products';
+import { toPng } from 'html-to-image';
 import { 
   Layers, 
   Sparkles, 
@@ -12,7 +13,8 @@ import {
   Share2, 
   Check,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 
 interface StoryCardExporterProps {
@@ -26,6 +28,8 @@ export const StoryCardExporter: React.FC<StoryCardExporterProps> = ({
   businessInfo,
   currency,
 }) => {
+  const storyCardRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [styleMode, setStyleMode] = useState<'minimal' | 'editorial' | 'cute'>('editorial');
 
@@ -37,6 +41,28 @@ export const StoryCardExporter: React.FC<StoryCardExporterProps> = ({
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + products.length) % products.length);
+  };
+
+  const handleDownloadStory = async () => {
+    if (!storyCardRef.current) return;
+    try {
+      setIsExporting(true);
+      const dataUrl = await toPng(storyCardRef.current, {
+        quality: 0.98,
+        pixelRatio: 2,
+        cacheBust: true,
+        skipFonts: true,
+      });
+
+      const link = document.createElement('a');
+      link.download = `Tatna-Story-${currentProduct.id}-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Error exporting story image:', err);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -55,21 +81,32 @@ export const StoryCardExporter: React.FC<StoryCardExporterProps> = ({
           </p>
         </div>
 
-        {/* Style switcher */}
-        <div className="flex items-center gap-1.5 bg-[#18181b] p-1.5 rounded-2xl border border-[#27272a]">
-          {(['editorial', 'minimal', 'cute'] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setStyleMode(mode)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all ${
-                styleMode === mode
-                  ? 'bg-[#c5a059] text-[#0c0c0c] font-bold shadow-sm'
-                  : 'text-[#a1a1aa] hover:text-[#fdfcfb]'
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
+        {/* Style switcher & Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleDownloadStory}
+            disabled={isExporting}
+            className="px-3.5 py-2 rounded-xl bg-[#c5a059] hover:bg-[#d8b76e] text-[#0c0c0c] text-xs font-bold flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+          >
+            {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            <span>{isExporting ? 'Saving HD...' : 'Download Card'}</span>
+          </button>
+
+          <div className="flex items-center gap-1 bg-[#18181b] p-1 rounded-2xl border border-[#27272a]">
+            {(['editorial', 'minimal', 'cute'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setStyleMode(mode)}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all ${
+                  styleMode === mode
+                    ? 'bg-[#c5a059] text-[#0c0c0c] font-bold shadow-sm'
+                    : 'text-[#a1a1aa] hover:text-[#fdfcfb]'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -97,7 +134,10 @@ export const StoryCardExporter: React.FC<StoryCardExporterProps> = ({
         </div>
 
         {/* 9:16 Vertical Story Card */}
-        <div className="order-1 lg:order-2 w-full max-w-[360px] aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl relative select-none border-4 border-[#c5a059]/30 flex flex-col justify-between p-6">
+        <div 
+          ref={storyCardRef}
+          className="order-1 lg:order-2 w-full max-w-[360px] aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl relative select-none border-4 border-[#c5a059]/30 flex flex-col justify-between p-6"
+        >
           {/* Background image & gradient overlay */}
           <div className="absolute inset-0 z-0">
             <img
