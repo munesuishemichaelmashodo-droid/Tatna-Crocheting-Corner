@@ -103,7 +103,7 @@ export const DigitalCatalog: React.FC<DigitalCatalogProps> = ({
             </div>
 
             <span className="inline-flex items-center gap-1.5 bg-[#52B788]/15 text-[#52B788] px-3 py-1 rounded-full text-xs font-bold border border-[#52B788]/30">
-              Pricing Starts From $2 USD
+              Pricing Starts From $1 USD
             </span>
           </div>
 
@@ -113,7 +113,7 @@ export const DigitalCatalog: React.FC<DigitalCatalogProps> = ({
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-[#a1a1aa] leading-relaxed max-w-2xl font-light">
-            Discover Tatna&apos;s bespoke crochet collection in Marondera, Zimbabwe. Custom handcrafted fashion, trendy beanies, statement bags, ruffled footwear, and forever flower bouquets starting from just $2.
+            Discover Tatna&apos;s bespoke crochet collection in Marondera, Zimbabwe. Custom handcrafted fashion, trendy beanies, statement bags, ruffled footwear, and forever flower bouquets starting from just $1.
           </p>
 
           {/* Quick Info & Actions */}
@@ -131,7 +131,7 @@ export const DigitalCatalog: React.FC<DigitalCatalogProps> = ({
 
             <a
               id="hero-whatsapp-chat"
-              href={`https://wa.me/${businessInfo.primaryPhone.replace(/[\s+]/g, '')}?text=${encodeURIComponent('Hi Tatna! I want to inquire about your crochet collection (pricing from $2).')}`}
+              href={`https://wa.me/${businessInfo.primaryPhone.replace(/[\s+]/g, '')}?text=${encodeURIComponent('Hi Tatna! I want to inquire about your crochet collection (pricing from $1).')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-5 py-3 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"

@@ -29,7 +29,7 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
     format: 'a4',
     headline: 'Tatna Crocheting Corner',
     subheadline: 'Crochet with Tatna • Handcrafted Wear & Bespoke Gifts',
-    announcement: 'All Items Available & Made to Order • Prices From $2 USD • Custom Colors Welcome 💕',
+    announcement: 'All Items Available & Made to Order • Prices From $1 USD • Custom Colors Welcome 💕',
     showPrices: true,
     showQrCode: true,
     showPhones: true,
