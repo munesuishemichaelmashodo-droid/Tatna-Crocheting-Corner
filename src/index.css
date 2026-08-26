@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-display: 'Italiana', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #0c0c0c;
+    color: #fdfcfb;
+  }
+  h1, h2, h3, .font-serif-title {
+    font-family: var(--font-serif);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+@media print {
+  body {
+    background: #0c0c0c !important;
+    color: #fdfcfb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .poster-print-surface {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    border: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    width: 100% !important;
+    max-width: 210mm !important;
+    height: auto !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}
+
+/* Custom sleek dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+::-webkit-scrollbar-thumb {
+  background: #2f2f36;
+  border-radius: 9999px;
+  border: 1px solid #1c1c20;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a059;
+}
+

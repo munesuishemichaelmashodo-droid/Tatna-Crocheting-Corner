@@ -1,0 +1,6 @@
+{
+  "name": "Tatna Crocheting Corner",
+  "description": "Modern, elegant catalog, lookbook, and high-resolution poster suite for Tatna Crocheting Corner handcrafted crochet wear and accessories in Marondera, Zimbabwe.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
