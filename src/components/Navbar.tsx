@@ -12,17 +12,22 @@ import {
   Share2, 
   Palette,
   Layers,
-  Calendar
+  Calendar,
+  Lock,
+  Unlock,
+  Instagram
 } from 'lucide-react';
 
 interface NavbarProps {
   businessInfo: BusinessInfo;
-  activeTab: 'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'about';
-  setActiveTab: (tab: 'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'about') => void;
+  activeTab: 'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'content-studio' | 'about';
+  setActiveTab: (tab: 'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'content-studio' | 'about') => void;
   currency: CurrencyCode;
   setCurrency: (c: CurrencyCode) => void;
   cartItems: CartItem[];
   setIsCartOpen: (open: boolean) => void;
+  isOwner?: boolean;
+  onOpenOwnerModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -33,6 +38,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setCurrency,
   cartItems,
   setIsCartOpen,
+  isOwner = false,
+  onOpenOwnerModal,
 }) => {
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -166,6 +173,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             <button
+              id="nav-content-studio-btn"
+              onClick={() => setActiveTab('content-studio')}
+              className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${
+                activeTab === 'content-studio'
+                  ? 'bg-[#c5a059] text-[#0c0c0c] font-bold shadow-md'
+                  : 'text-[#a1a1aa] hover:text-[#fdfcfb] hover:bg-[#222226]'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-[#d48396]" />
+              <span>AI Content Studio</span>
+              <span className="text-[9px] bg-gradient-to-r from-[#833ab4] to-[#fd1d1d] text-white px-1.5 py-0.5 rounded-full font-bold">
+                PRO
+              </span>
+            </button>
+
+            <button
               id="nav-about-btn"
               onClick={() => setActiveTab('about')}
               className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${
@@ -180,7 +203,24 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action Tools */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {/* Owner Access PIN Button */}
+            {onOpenOwnerModal && (
+              <button
+                id="navbar-owner-mode-btn"
+                onClick={onOpenOwnerModal}
+                className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
+                  isOwner
+                    ? 'bg-[#52B788]/20 border-[#52B788]/50 text-[#52B788] hover:bg-[#52B788]/30'
+                    : 'bg-[#16161a] border-[#27272a] text-[#a1a1aa] hover:text-[#fdfcfb] hover:bg-[#202026]'
+                }`}
+                title={isOwner ? 'Owner Mode Active' : 'Owner Admin Login'}
+              >
+                {isOwner ? <Unlock className="w-3.5 h-3.5 text-[#52B788]" /> : <Lock className="w-3.5 h-3.5 text-[#c5a059]" />}
+                <span className="hidden sm:inline">{isOwner ? 'Owner' : 'Owner PIN'}</span>
+              </button>
+            )}
+
             {/* USD Currency Badge */}
             <div className="hidden sm:flex items-center gap-1.5 bg-[#16161a] border border-[#27272a] rounded-xl px-3 py-1.5 text-xs text-[#c5a059] font-bold shadow-xs">
               <span>$ USD</span>
@@ -268,6 +308,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Layers className="w-3.5 h-3.5" />
             Status Cards
+          </button>
+          <button
+            id="mobile-nav-content-studio"
+            onClick={() => setActiveTab('content-studio')}
+            className={`px-3.5 py-1.5 text-xs font-medium rounded-full whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'content-studio'
+                ? 'bg-[#c5a059] text-[#0c0c0c] font-bold'
+                : 'bg-[#18181b] text-[#a1a1aa] border border-[#27272a]'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#d48396]" />
+            AI Creator
           </button>
           <button
             id="mobile-nav-about"

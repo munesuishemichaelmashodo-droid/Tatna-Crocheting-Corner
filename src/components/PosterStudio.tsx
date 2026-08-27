@@ -30,9 +30,16 @@ import {
 interface PosterStudioProps {
   products: CrochetProduct[];
   businessInfo: BusinessInfo;
+  isOwner?: boolean;
+  onOpenOwnerModal?: () => void;
 }
 
-export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessInfo }) => {
+export const PosterStudio: React.FC<PosterStudioProps> = ({ 
+  products, 
+  businessInfo,
+  isOwner = false,
+  onOpenOwnerModal,
+}) => {
   const posterRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -56,6 +63,9 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
 
   const [copiedText, setCopiedText] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  const [copiedStatusLink, setCopiedStatusLink] = useState<boolean>(false);
+  const [showLinkTips, setShowLinkTips] = useState<boolean>(true);
 
   const websiteUrl = 'https://tatna-crocheting-corner.vercel.app';
 
@@ -111,38 +121,6 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
     }
   };
 
-  const handleNativeShare = async () => {
-    if (!posterRef.current) return;
-    try {
-      setIsExporting(true);
-      setExportError(null);
-
-      const blob = await toBlob(posterRef.current, {
-        quality: 0.95,
-        pixelRatio: 2,
-        cacheBust: true,
-        skipFonts: true,
-      });
-
-      if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'tatna-flyer.png', { type: 'image/png' })] })) {
-        const file = new File([blob], 'tatna-crochet-flyer.png', { type: 'image/png' });
-        await navigator.share({
-          title: 'Tatna Crocheting Corner Flyer',
-          text: `Check out Tatna Crocheting Corner in Marondera! Handcrafted fashion & gifts from $1 USD: ${websiteUrl}`,
-          files: [file],
-        });
-      } else {
-        // Fallback to regular WhatsApp text share
-        shareViaWhatsApp();
-      }
-    } catch (err) {
-      console.error('Share error:', err);
-      shareViaWhatsApp();
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   const copyWhatsAppTextFlyer = () => {
     const text = `🌸 *TATNA CROCHETING CORNER* 🌸\n` +
       `✨ _Artisanal Handcrafted Wear, Bags, Footwear & Everlasting Flowers_\n` +
@@ -158,6 +136,13 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
     navigator.clipboard.writeText(text);
     setCopiedText(true);
     setTimeout(() => setCopiedText(false), 2500);
+  };
+
+  const copyStatusLinkText = () => {
+    const text = `🌸 Browse Tatna Crocheting Corner official catalog & price list from $1 USD:\n${websiteUrl}`;
+    navigator.clipboard.writeText(text);
+    setCopiedStatusLink(true);
+    setTimeout(() => setCopiedStatusLink(false), 2500);
   };
 
   const shareViaWhatsApp = () => {
@@ -198,9 +183,15 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
             <span className="text-[11px] font-bold tracking-widest text-[#c5a059] uppercase block">
               Official Marketing Suite
             </span>
-            <span className="bg-[#52B788]/20 text-[#52B788] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#52B788]/30">
-              Ready for Clients
-            </span>
+            {isOwner ? (
+              <span className="bg-[#52B788]/20 text-[#52B788] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#52B788]/30">
+                Owner Studio Active
+              </span>
+            ) : (
+              <span className="bg-[#27272a] text-[#a1a1aa] text-[10px] font-medium px-2 py-0.5 rounded-full">
+                Client Flyer Mode
+              </span>
+            )}
           </div>
           <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#fdfcfb] mt-0.5">
             Client Poster & Promo Flyer Generator
@@ -211,6 +202,20 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {onOpenOwnerModal && (
+            <button
+              onClick={onOpenOwnerModal}
+              className={`px-3 py-2.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                isOwner
+                  ? 'bg-[#52B788]/15 border-[#52B788]/40 text-[#52B788]'
+                  : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa] hover:text-white'
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>{isOwner ? 'Owner Mode' : 'Owner PIN'}</span>
+            </button>
+          )}
+
           <button
             id="download-png-flyer-btn"
             onClick={handleDownloadImage}
@@ -223,11 +228,11 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
 
           <button
             id="share-whatsapp-btn"
-            onClick={handleNativeShare}
+            onClick={shareViaWhatsApp}
             className="px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs font-bold flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
           >
             <Share2 className="w-4 h-4 text-white" />
-            <span>Send to Client</span>
+            <span>Send to Client (WhatsApp)</span>
           </button>
 
           <button
@@ -262,6 +267,22 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
             <div className="space-y-2">
               <button
                 type="button"
+                onClick={copyStatusLinkText}
+                className="w-full p-2.5 rounded-xl bg-[#c5a059]/15 hover:bg-[#c5a059]/25 border border-[#c5a059]/40 text-left text-xs font-semibold text-[#fdfcfb] flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="w-3.5 h-3.5 text-[#c5a059]" />
+                  <span>Copy Status Link (Tap to Open)</span>
+                </div>
+                {copiedStatusLink ? (
+                  <span className="text-[10px] text-[#52B788] font-bold">Copied!</span>
+                ) : (
+                  <span className="text-[10px] text-[#c5a059] font-medium">For Status ✏️</span>
+                )}
+              </button>
+
+              <button
+                type="button"
                 onClick={copyWhatsAppTextFlyer}
                 className="w-full p-2.5 rounded-xl bg-[#1a1a1e] hover:bg-[#222228] border border-[#27272a] text-left text-xs font-semibold text-[#fdfcfb] flex items-center justify-between transition-all"
               >
@@ -279,11 +300,57 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
               >
                 <div className="flex items-center gap-2">
                   <Globe className="w-3.5 h-3.5 text-[#c5a059]" />
-                  <span>Copy Official Website Link</span>
+                  <span>Copy Website URL Only</span>
                 </div>
                 {copiedLink && <span className="text-[10px] text-[#52B788] font-bold">Copied!</span>}
               </button>
             </div>
+          </div>
+
+          {/* WhatsApp Clickable Link Helper Card */}
+          <div className="bg-[#141416] p-4 sm:p-5 rounded-2xl border border-[#25D366]/30 shadow-lg space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#25D366] flex items-center gap-1.5">
+                <MessageCircle className="w-4 h-4 text-[#25D366]" /> Why Image Links Don't Tap & Fix
+              </h3>
+              <button
+                onClick={() => setShowLinkTips(!showLinkTips)}
+                className="text-[10px] text-[#a1a1aa] hover:text-white"
+              >
+                {showLinkTips ? 'Hide' : 'Show Guide'}
+              </button>
+            </div>
+
+            {showLinkTips && (
+              <div className="space-y-2.5 text-[11px] text-[#d4d4d8] leading-relaxed">
+                <p className="bg-[#18181b] p-2.5 rounded-xl border border-[#27272a]">
+                  📌 <strong className="text-white">Why it happens:</strong> WhatsApp does not allow users to tap words drawn <span className="text-amber-300">inside an image/photo</span>.
+                </p>
+
+                <div className="space-y-1.5 pl-1">
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#25D366]/20 text-[#25D366] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span>
+                      <strong className="text-white">WhatsApp Status:</strong> Post your poster photo, then tap the <strong>Pencil (✏️ Text Status)</strong> icon and paste the website link. WhatsApp will display a large clickable preview card!
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#25D366]/20 text-[#25D366] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span>
+                      <strong className="text-white">In Chat / DMs:</strong> Use <strong>Send to Client (WhatsApp)</strong> or send the photo with the copied text link underneath.
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#25D366]/20 text-[#25D366] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span>
+                      <strong className="text-white">QR Code on Poster:</strong> Clients can point any phone camera or WhatsApp scanner at the flyer's QR code to open the site directly.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Theme Selector */}
@@ -350,17 +417,27 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
 
           {/* Custom Text Inputs */}
           <div className="bg-[#141416] p-5 rounded-2xl border border-[#27272a] shadow-lg space-y-3.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#fdfcfb] flex items-center gap-1.5">
-              <Sliders className="w-4 h-4 text-[#c5a059]" /> 3. Poster Copy & Badges
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#fdfcfb] flex items-center gap-1.5">
+                <Sliders className="w-4 h-4 text-[#c5a059]" /> 3. Poster Copy & Badges
+              </h3>
+              {!isOwner && (
+                <span className="text-[10px] text-[#c5a059] flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Owner Protected
+                </span>
+              )}
+            </div>
 
             <div>
               <label className="block text-[11px] font-semibold text-[#a1a1aa] mb-1">Headline</label>
               <input
                 type="text"
                 value={settings.headline}
+                disabled={!isOwner}
                 onChange={(e) => setSettings({ ...settings, headline: e.target.value })}
-                className="w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb]"
+                className={`w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb] ${
+                  !isOwner ? 'opacity-80 cursor-not-allowed' : ''
+                }`}
               />
             </div>
 
@@ -369,8 +446,11 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
               <input
                 type="text"
                 value={settings.subheadline}
+                disabled={!isOwner}
                 onChange={(e) => setSettings({ ...settings, subheadline: e.target.value })}
-                className="w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb]"
+                className={`w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb] ${
+                  !isOwner ? 'opacity-80 cursor-not-allowed' : ''
+                }`}
               />
             </div>
 
@@ -379,9 +459,17 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ products, businessIn
               <input
                 type="text"
                 value={settings.announcement}
+                disabled={!isOwner}
                 onChange={(e) => setSettings({ ...settings, announcement: e.target.value })}
-                className="w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb]"
+                className={`w-full text-xs p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl focus:ring-2 focus:ring-[#c5a059] outline-none text-[#fdfcfb] ${
+                  !isOwner ? 'opacity-80 cursor-not-allowed' : ''
+                }`}
               />
+              {!isOwner && (
+                <p className="text-[10px] text-[#a1a1aa] mt-1">
+                  Tap &ldquo;Owner PIN&rdquo; above to customize official shop slogans or promotional sale text.
+                </p>
+              )}
             </div>
           </div>
 

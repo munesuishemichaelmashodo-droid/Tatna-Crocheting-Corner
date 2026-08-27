@@ -11,6 +11,8 @@ import { StoryCardExporter } from './components/StoryCardExporter';
 import { AboutContact } from './components/AboutContact';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
+import { OwnerAuthModal } from './components/OwnerAuthModal';
+import { AdminContentStudio } from './components/AdminContentStudio';
 import { 
   Heart, 
   Sparkles, 
@@ -21,15 +23,19 @@ import {
   Printer, 
   Layers,
   ArrowUp,
-  Calendar
+  Calendar,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 export function App() {
   const [businessInfo] = useState<BusinessInfo>(INITIAL_BUSINESS_INFO);
   const [products] = useState<CrochetProduct[]>(INITIAL_PRODUCTS);
-  const [activeTab, setActiveTab] = useState<'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'about'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'booking' | 'poster' | 'quote' | 'stories' | 'content-studio' | 'about'>('catalog');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<CrochetProduct | null>(null);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isOwnerModalOpen, setIsOwnerModalOpen] = useState<boolean>(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       product: INITIAL_PRODUCTS[0], // Slouchy Beanie
@@ -96,6 +102,8 @@ export function App() {
         setCurrency={setCurrency}
         cartItems={cartItems}
         setIsCartOpen={setIsCartOpen}
+        isOwner={isOwner}
+        onOpenOwnerModal={() => setIsOwnerModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -130,6 +138,8 @@ export function App() {
           <PosterStudio
             products={products}
             businessInfo={businessInfo}
+            isOwner={isOwner}
+            onOpenOwnerModal={() => setIsOwnerModalOpen(true)}
           />
         )}
 
@@ -148,6 +158,18 @@ export function App() {
             products={products}
             businessInfo={businessInfo}
             currency={currency}
+            isOwner={isOwner}
+            onOpenOwnerModal={() => setIsOwnerModalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'content-studio' && (
+          <AdminContentStudio
+            products={products}
+            businessInfo={businessInfo}
+            currency={currency}
+            isOwner={isOwner}
+            onOpenOwnerModal={() => setIsOwnerModalOpen(true)}
           />
         )}
 
@@ -157,6 +179,21 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Owner Admin Authentication Modal */}
+      <OwnerAuthModal
+        isOwner={isOwner}
+        onToggleOwner={(status) => {
+          setIsOwner(status);
+          showToast(status ? 'Owner Mode Enabled (PIN 2026)' : 'Switched to Client View');
+        }}
+        isOpen={isOwnerModalOpen}
+        onClose={() => setIsOwnerModalOpen(false)}
+        onGoToContentStudio={() => {
+          setActiveTab('content-studio');
+          scrollToTop();
+        }}
+      />
 
       {/* Product Zoom & Order Modal */}
       <ProductDetailModal
